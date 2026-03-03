@@ -37,7 +37,10 @@
       "Bash(npm test)",
       "Bash(npx tsx src/index.ts add --help)",
       "Bash(npx tsx src/index.ts edit --help)",
-      "Bash(npm install)"
+      "Bash(npm install)",
+      "Bash(node dist/index.js start \"test\")",
+      "Bash(node dist/index.js stop)",
+      "Bash(echo \"CLI_TRACKER_DB_PATH=$CLI_TRACKER_DB_PATH\")"
     ]
   }
 }
