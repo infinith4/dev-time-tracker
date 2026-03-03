@@ -190,6 +190,31 @@ All data is stored locally in a SQLite database. The database location is resolv
 2. `$XDG_DATA_HOME/data.db`
 3. `~/.cli-tracker/data.db` (default)
 
+### Changing the Database Path
+
+Use the `CLI_TRACKER_DB_PATH` environment variable to customize the database location.
+
+**For the current session:**
+
+```bash
+export CLI_TRACKER_DB_PATH=/path/to/my/data.db
+trc list
+```
+
+**For a single command:**
+
+```bash
+CLI_TRACKER_DB_PATH=/path/to/my/data.db trc list
+```
+
+**Permanently (add to shell profile):**
+
+```bash
+# Add to ~/.bashrc or ~/.zshrc
+echo 'export CLI_TRACKER_DB_PATH=/path/to/my/data.db' >> ~/.bashrc
+source ~/.bashrc
+```
+
 ## Development
 
 ```bash
