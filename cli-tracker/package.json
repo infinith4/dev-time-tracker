@@ -5,7 +5,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/infinith4/dev-timer-tracker.git",
+    "url": "https://github.com/infinith4/dev-time-tracker.git",
     "directory": "cli-tracker"
   },
   "publishConfig": {
