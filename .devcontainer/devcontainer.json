@@ -10,20 +10,12 @@
     "ghcr.io/devcontainers/features/python:1": {
       "version": "3.12"
     },
-    "ghcr.io/devcontainers/features/dotnet:2": {
-      "version": "9.0"
-    },
-    "ghcr.io/devcontainers/features/java:1": {
-      "version": "23"
-    }
   },
   "customizations": {
     "vscode": {
       "extensions": [
-        "ms-dotnettools.csharp",
         "ms-python.python",
         "ms-python.vscode-pylance",
-        "vscjava.vscode-java-pack",
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
         "Anthropic.claude-code"
