@@ -68,3 +68,15 @@ export function startOfWeek(): string {
 export function startOfMonth(): string {
   return toDayjs().startOf("month").toISOString();
 }
+
+export function parseDateTime(input: string): dayjs.Dayjs {
+  const tz = getTimezone();
+  if (tz) {
+    return dayjs.tz(input, tz);
+  }
+  return dayjs(input);
+}
+
+export function diffSeconds(start: string, end: string): number {
+  return Math.floor(dayjs(end).diff(dayjs(start)) / 1000);
+}

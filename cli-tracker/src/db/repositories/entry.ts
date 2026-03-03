@@ -58,7 +58,13 @@ export function deleteEntry(id: number): boolean {
 
 export function updateEntry(
   id: number,
-  fields: { description?: string; project_id?: number | null },
+  fields: {
+    description?: string;
+    project_id?: number | null;
+    start_time?: string;
+    end_time?: string;
+    duration_sec?: number;
+  },
 ): boolean {
   const db = getDb();
   const sets: string[] = [];
@@ -71,6 +77,18 @@ export function updateEntry(
   if (fields.project_id !== undefined) {
     sets.push("project_id = ?");
     values.push(fields.project_id);
+  }
+  if (fields.start_time !== undefined) {
+    sets.push("start_time = ?");
+    values.push(fields.start_time);
+  }
+  if (fields.end_time !== undefined) {
+    sets.push("end_time = ?");
+    values.push(fields.end_time);
+  }
+  if (fields.duration_sec !== undefined) {
+    sets.push("duration_sec = ?");
+    values.push(fields.duration_sec);
   }
 
   if (sets.length === 0) return false;
