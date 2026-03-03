@@ -1,8 +1,16 @@
 {
-  "name": "cli-tracker",
+  "name": "@infinith4/cli-tracker",
   "version": "1.0.0",
-  "description": "Toggl-like CLI time tracking tool",
+  "description": "CLI time tracking tool",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/infinith4/dev-timer-tracker.git",
+    "directory": "cli-tracker"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "bin": {
     "trc": "./dist/index.js"
   },
