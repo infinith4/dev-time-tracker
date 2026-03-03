@@ -36,7 +36,8 @@
       "Bash(npm install dayjs)",
       "Bash(npm test)",
       "Bash(npx tsx src/index.ts add --help)",
-      "Bash(npx tsx src/index.ts edit --help)"
+      "Bash(npx tsx src/index.ts edit --help)",
+      "Bash(npm install)"
     ]
   }
 }

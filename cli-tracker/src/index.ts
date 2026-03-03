@@ -9,6 +9,7 @@ import { registerDelete } from "./commands/delete.js";
 import { registerEdit } from "./commands/edit.js";
 import { registerProject } from "./commands/project.js";
 import { registerExport } from "./commands/export.js";
+import { registerImport } from "./commands/import.js";
 import { registerAdd } from "./commands/add.js";
 import { closeDb } from "./db/connection.js";
 import { setTimezone } from "./utils/time.js";
@@ -37,6 +38,7 @@ registerDelete(program);
 registerEdit(program);
 registerProject(program);
 registerExport(program);
+registerImport(program);
 registerAdd(program);
 
 program.hook("postAction", () => {
