@@ -1,18 +1,18 @@
 {
   "name": "@infinith4/cli-tracker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CLI time tracking tool",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/infinith4/dev-time-tracker.git",
+    "url": "git+https://github.com/infinith4/dev-time-tracker.git",
     "directory": "cli-tracker"
   },
   "publishConfig": {
     "access": "public"
   },
   "bin": {
-    "trc": "./dist/index.js"
+    "trc": "dist/index.js"
   },
   "scripts": {
     "dev": "tsx src/index.ts",
