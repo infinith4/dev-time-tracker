@@ -9,7 +9,7 @@
     "directory": "cli-tracker"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "access": "public"
   },
   "bin": {
     "trc": "./dist/index.js"
