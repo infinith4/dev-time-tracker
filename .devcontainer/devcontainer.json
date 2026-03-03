@@ -1,8 +1,8 @@
 {
-  "name": "dev-timer",
+  "name": "dev-time-tracker",
   "dockerComposeFile": "docker-compose.yml",
   "service": "devcontainer",
-  "workspaceFolder": "/workspaces/dev-timer",
+  "workspaceFolder": "/workspaces/dev-time-tracker",
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
       "version": "22"
