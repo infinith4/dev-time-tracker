@@ -1,4 +1,25 @@
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc.js";
+import timezone from "dayjs/plugin/timezone.js";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+let currentTimezone: string | undefined;
+
+export function setTimezone(tz: string): void {
+  currentTimezone = tz;
+}
+
+export function getTimezone(): string | undefined {
+  return currentTimezone || process.env["TRC_TIMEZONE"];
+}
+
+function toDayjs(isoString?: string): dayjs.Dayjs {
+  const d = isoString ? dayjs(isoString) : dayjs();
+  const tz = getTimezone();
+  return tz ? d.tz(tz) : d;
+}
 
 export function formatDuration(seconds: number): string {
   const h = Math.floor(seconds / 3600);
@@ -15,11 +36,11 @@ export function formatDuration(seconds: number): string {
 }
 
 export function formatTime(isoString: string): string {
-  return dayjs(isoString).format("HH:mm");
+  return toDayjs(isoString).format("HH:mm");
 }
 
 export function formatDate(isoString: string): string {
-  return dayjs(isoString).format("YYYY-MM-DD");
+  return toDayjs(isoString).format("YYYY-MM-DD");
 }
 
 export function now(): string {
@@ -31,19 +52,19 @@ export function elapsedSeconds(startTime: string): number {
 }
 
 export function startOfDay(date?: string): string {
-  const d = date ? dayjs(date) : dayjs();
+  const d = date ? toDayjs(date) : toDayjs();
   return d.startOf("day").toISOString();
 }
 
 export function endOfDay(date?: string): string {
-  const d = date ? dayjs(date) : dayjs();
+  const d = date ? toDayjs(date) : toDayjs();
   return d.endOf("day").toISOString();
 }
 
 export function startOfWeek(): string {
-  return dayjs().startOf("week").toISOString();
+  return toDayjs().startOf("week").toISOString();
 }
 
 export function startOfMonth(): string {
-  return dayjs().startOf("month").toISOString();
+  return toDayjs().startOf("month").toISOString();
 }

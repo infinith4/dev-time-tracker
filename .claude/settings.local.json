@@ -32,7 +32,9 @@
       "Bash(echo $PATH)",
       "Bash(export PATH=\"$PATH:/home/vscode/.npm-global/bin\")",
       "WebFetch(domain:docs.npmjs.com)",
-      "WebFetch(domain:philna.sh)"
+      "WebFetch(domain:philna.sh)",
+      "Bash(npm install dayjs)",
+      "Bash(npm test)"
     ]
   }
 }

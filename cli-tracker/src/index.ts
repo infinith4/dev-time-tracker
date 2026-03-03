@@ -10,13 +10,21 @@ import { registerEdit } from "./commands/edit.js";
 import { registerProject } from "./commands/project.js";
 import { registerExport } from "./commands/export.js";
 import { closeDb } from "./db/connection.js";
+import { setTimezone } from "./utils/time.js";
 
 const program = new Command();
 
 program
   .name("trc")
   .description("Toggl-like CLI time tracking tool")
-  .version("1.0.0");
+  .version("1.0.0")
+  .option("--timezone <tz>", "Timezone for display (e.g. Asia/Tokyo)")
+  .hook("preAction", () => {
+    const tz = program.opts().timezone as string | undefined;
+    if (tz) {
+      setTimezone(tz);
+    }
+  });
 
 registerStart(program);
 registerStop(program);
