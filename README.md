@@ -83,6 +83,7 @@ Commands:
                           データをエクスポートする
 
 Global Options:
+  --timezone <tz>         表示のタイムゾーンを指定 (e.g. Asia/Tokyo)
   -p, --project <name>    プロジェクトを指定
   -t, --tags <tags>       タグをカンマ区切りで指定
   -h, --help              ヘルプを表示
@@ -329,7 +330,47 @@ source ~/.bashrc
 
 ---
 
-## 10. 非機能要件
+## 10. タイムゾーン設定
+
+日時の表示をタイムゾーン指定で変更できます。IANA タイムゾーン名（例: `Asia/Tokyo`, `America/New_York`）を使用します。
+
+### 方法1: コマンドオプションで指定
+
+```bash
+trc --timezone Asia/Tokyo list
+trc --timezone America/New_York report --period week
+```
+
+### 方法2: 環境変数で常時適用
+
+```bash
+# .bashrc / .zshrc に追加
+export TRC_TIMEZONE=Asia/Tokyo
+```
+
+設定後は `--timezone` オプションなしでも JST で表示されます。
+
+```bash
+trc list    # Asia/Tokyo で表示
+```
+
+### 優先順位
+
+1. `--timezone` オプション（最優先）
+2. `TRC_TIMEZONE` 環境変数
+3. システムのローカルタイム（デフォルト）
+
+---
+
+## 11. インストール
+
+```bash
+npm install -g @infinith4/cli-tracker
+```
+
+---
+
+## 12. 非機能要件
 
 | 項目 | 要件 |
 |------|------|
