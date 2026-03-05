@@ -1,49 +1,91 @@
 import type { Command } from "commander";
 import { createEntry, stopEntry, setTagsForEntry } from "../db/repositories/entry.js";
 import { findOrCreateProject } from "../db/repositories/project.js";
-import { parseDateTime, diffSeconds } from "../utils/time.js";
+import { parseDateTime, diffSeconds, formatDuration } from "../utils/time.js";
 import { success, error as errorColor } from "../ui/colors.js";
+import { parseDescriptionProject } from "../utils/parse.js";
+
+function parseHm(hm: string): number | null {
+  const match = hm.match(/^(\d+)h(\d+)m$|^(\d+)h$|^(\d+)m$/);
+  if (!match) return null;
+  if (match[1] !== undefined && match[2] !== undefined) {
+    return parseInt(match[1]) * 3600 + parseInt(match[2]) * 60;
+  }
+  if (match[3] !== undefined) {
+    return parseInt(match[3]) * 3600;
+  }
+  if (match[4] !== undefined) {
+    return parseInt(match[4]) * 60;
+  }
+  return null;
+}
 
 export function registerAdd(program: Command): void {
   program
     .command("add [description]")
-    .description("Add a completed time entry")
+    .description("Add a completed time entry (use description@project shorthand)")
     .requiredOption("--start <datetime>", "Start time (YYYY-MM-DD HH:mm)")
-    .requiredOption("--end <datetime>", "End time (YYYY-MM-DD HH:mm)")
+    .option("--end <datetime>", "End time (YYYY-MM-DD HH:mm)")
+    .option("--hm <duration>", "Duration from start (e.g., 1h30m, 2h, 45m)")
     .option("-p, --project <name>", "Project name")
     .option("-t, --tags <tags>", "Comma-separated tags")
     .action(
       (
         description: string | undefined,
-        opts: { start: string; end: string; project?: string; tags?: string },
+        opts: { start: string; end?: string; hm?: string; project?: string; tags?: string },
       ) => {
-        const startDayjs = parseDateTime(opts.start);
-        const endDayjs = parseDateTime(opts.end);
+        const parsed = parseDescriptionProject(description || "");
+        const projectName = opts.project || parsed.project;
+        if (!opts.end && !opts.hm) {
+          console.log(errorColor("\nEither --end or --hm is required.\n"));
+          return;
+        }
+        if (opts.end && opts.hm) {
+          console.log(errorColor("\nCannot use both --end and --hm. Choose one.\n"));
+          return;
+        }
 
+        const startDayjs = parseDateTime(opts.start);
         if (!startDayjs.isValid()) {
           console.log(errorColor(`\nInvalid start time: ${opts.start}\n`));
           return;
         }
-        if (!endDayjs.isValid()) {
-          console.log(errorColor(`\nInvalid end time: ${opts.end}\n`));
-          return;
-        }
-        if (endDayjs.isBefore(startDayjs) || endDayjs.isSame(startDayjs)) {
-          console.log(errorColor("\nEnd time must be after start time.\n"));
-          return;
+
+        let endIso: string;
+        let duration: number;
+
+        if (opts.hm) {
+          const seconds = parseHm(opts.hm);
+          if (seconds === null || seconds <= 0) {
+            console.log(errorColor(`\nInvalid duration: ${opts.hm}. Use format like 1h30m, 2h, or 45m.\n`));
+            return;
+          }
+          duration = seconds;
+          const endDayjs = startDayjs.add(seconds, "second");
+          endIso = endDayjs.toISOString();
+        } else {
+          const endDayjs = parseDateTime(opts.end!);
+          if (!endDayjs.isValid()) {
+            console.log(errorColor(`\nInvalid end time: ${opts.end}\n`));
+            return;
+          }
+          if (endDayjs.isBefore(startDayjs) || endDayjs.isSame(startDayjs)) {
+            console.log(errorColor("\nEnd time must be after start time.\n"));
+            return;
+          }
+          endIso = endDayjs.toISOString();
+          duration = diffSeconds(startDayjs.toISOString(), endIso);
         }
 
         const startIso = startDayjs.toISOString();
-        const endIso = endDayjs.toISOString();
-        const duration = diffSeconds(startIso, endIso);
 
         let projectId: number | undefined;
-        if (opts.project) {
-          const project = findOrCreateProject(opts.project);
+        if (projectName) {
+          const project = findOrCreateProject(projectName);
           projectId = project.id;
         }
 
-        const desc = description || "";
+        const desc = parsed.description;
         const entryId = createEntry(desc, startIso, projectId);
         stopEntry(entryId, endIso, duration);
 
@@ -53,7 +95,7 @@ export function registerAdd(program: Command): void {
         }
 
         console.log(success(`\nAdded entry #${entryId}: ${desc || "(no description)"}`));
-        console.log(`  ${opts.start} ~ ${opts.end} (${Math.floor(duration / 60)}min)\n`);
+        console.log(`  ${opts.start} ~ ${formatDuration(duration)}\n`);
       },
     );
 }

@@ -44,10 +44,14 @@ trc list
 **Start options:**
 
 ```bash
-trc start "Task description" -p <project> -t <tag1,tag2>
+# Use @ shorthand to specify project inline
+trc start "Task description@my-project"
+
+# Or use the -p option
+trc start "Task description" -p my-project -t <tag1,tag2>
 ```
 
-- `-p, --project <name>` — Assign a project (auto-created if it doesn't exist)
+- `-p, --project <name>` — Assign a project (auto-created if it doesn't exist). Overrides `@project` if both are given.
 - `-t, --tags <tags>` — Comma-separated tags
 
 > If a timer is already running, `start` will automatically stop it before starting a new one.
@@ -70,13 +74,23 @@ trc list -p my-project
 #### Add a completed entry
 
 ```bash
+# With end time
 trc add "Meeting" --start "2026-03-03 09:00" --end "2026-03-03 10:30" -p my-project
+
+# With duration (--hm)
+trc add "Meeting" --start "2026-03-03 09:00" --hm 1h30m -p my-project
+
+# Use @ shorthand for project
+trc add "Meeting@my-project" --start "2026-03-03 09:00" --hm 1h30m
 ```
 
 - `--start <datetime>` — Start time (required, format: `YYYY-MM-DD HH:mm`)
-- `--end <datetime>` — End time (required, format: `YYYY-MM-DD HH:mm`)
+- `--end <datetime>` — End time (format: `YYYY-MM-DD HH:mm`)
+- `--hm <duration>` — Duration from start (e.g., `1h30m`, `2h`, `45m`)
 - `-p, --project <name>` — Project name
 - `-t, --tags <tags>` — Comma-separated tags
+
+Either `--end` or `--hm` is required. They cannot be used together.
 
 #### Edit an entry
 
@@ -166,6 +180,60 @@ trc export > backup.csv
 
 # Restore
 trc import backup.csv
+```
+
+## Examples
+
+### Daily workflow
+
+```bash
+# Morning: start working
+trc start "standup meeting@team"
+
+# Switch tasks (previous timer auto-stops)
+trc start "implement login@auth-service" -t feature,backend
+
+# Lunch break
+trc stop
+
+# Afternoon: continue last task
+trc continue
+
+# End of day
+trc stop
+
+# Review the day
+trc list
+```
+
+### Adding past entries
+
+```bash
+# Forgot to track a meeting — add it manually
+trc add "design review@frontend" --start "2026-03-03 10:00" --end "2026-03-03 11:30"
+
+# Quick 45-minute task using --hm shorthand
+trc add "code review@backend" --start "2026-03-03 14:00" --hm 45m
+
+# 2-hour workshop with tags
+trc add "workshop@training" --start "2026-03-03 13:00" --hm 2h -t learning,team
+```
+
+### Weekly report and export
+
+```bash
+# Check weekly summary
+trc report
+
+# Monthly report for a specific project
+trc report --period month -p auth-service
+
+# Export and backup
+trc export > weekly-timesheet.csv
+trc export --format yaml > backup.yaml
+
+# Restore from backup
+trc import backup.yaml
 ```
 
 ## Global Options
