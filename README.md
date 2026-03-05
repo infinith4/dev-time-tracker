@@ -5,7 +5,7 @@
 時間計測・管理機能を CLI で実行できるアプリケーション。
 タスクごとの作業時間を記録・集計し、プロジェクト単位でのレポートを生成する。
 
-### コンセプト
+### 1.1. コンセプト
 
 - **シンプル**: `trc start "タスク名"` で即座に計測開始
 - **高速**: CLI ネイティブで起動が速い
@@ -13,24 +13,7 @@
 
 ---
 
-## 2. 技術スタック
-
-| 項目 | 選定 | 理由 |
-|------|------|------|
-| 言語 | TypeScript (Node.js) | CLI エコシステムが充実、型安全 |
-| CLI フレームワーク | Commander.js | 軽量で実績豊富 |
-| ターミナル装飾 | chalk + cli-table3 | 色付き出力・テーブル表示 |
-| データ保存 | SQLite (better-sqlite3) | 軽量でローカル完結、SQL で集計が容易 |
-| 日時処理 | dayjs | 軽量な日時ライブラリ |
-| ビルド | tsup | 高速バンドラー |
-| テスト | Vitest | 高速・TypeScript ネイティブ |
-| パッケージ管理 | npm | 標準的 |
-
----
-
-## 3. 機能一覧
-
-### 3.1 コア機能（Must）
+## 2. 機能一覧
 
 | # | 機能 | コマンド例 | 説明 |
 |---|------|-----------|------|
@@ -38,31 +21,24 @@
 | F2 | タイマー停止 | `trc stop` | 実行中のタイマーを停止 |
 | F3 | ステータス確認 | `trc status` | 現在のタイマー状態と経過時間を表示 |
 | F4 | タイマー一覧 | `trc list` | 今日の記録を一覧表示 |
-| F5 | レポート表示 | `trc report` | 日/週単位の集計レポート |
-| F6 | プロジェクト指定 | `trc start -p myproject "タスク"` | プロジェクトに紐づけて記録 |
-
-### 3.2 便利機能（Should）
-
-| # | 機能 | コマンド例 | 説明 |
-|---|------|-----------|------|
+| F5 | レポート表示 | `trc report` | 日/週/月単位の集計レポート |
+| F6 | プロジェクト指定 | `trc start "タスク@myproject"` | プロジェクトに紐づけて記録（`@`記法対応） |
 | F7 | 直前の再開 | `trc continue` | 直前のタイマーと同じ内容で再開 |
 | F8 | エントリ削除 | `trc delete <id>` | 記録を削除 |
-| F9 | エントリ編集 | `trc edit <id> --desc "新しい説明"` | 記録を修正 |
+| F9 | エントリ編集 | `trc edit <id> --desc "新しい説明"` | 記録を修正（duration自動再計算） |
 | F10 | タグ付け | `trc start -t bug,frontend "修正"` | タグで分類 |
 | F11 | プロジェクト管理 | `trc project list` | プロジェクトの CRUD |
 | F12 | エクスポート | `trc export --format csv` | CSV/YAML で出力 |
-
-### 3.3 拡張機能（Could）
-
-| # | 機能 | コマンド例 | 説明 |
-|---|------|-----------|------|
-| F13 | ポモドーロモード | `trc pomodoro` | 25分作業 + 5分休憩のサイクル |
-| F14 | 目標設定 | `trc goal set --daily 8h` | 日次目標時間の設定・達成率表示 |
-| F15 | インタラクティブUI | `trc ui` | TUI でリアルタイム表示 |
+| F13 | インポート | `trc import backup.csv` | CSV/YAML からデータ復元 |
+| F14 | エントリ追加 | `trc add "会議" --start "09:00" --hm 1h30m` | 過去のエントリを手動追加（`--hm`対応） |
+| F15 | Duration再計算 | `trc recalc` | 全エントリのdurationを一括再計算 |
+| F16 | ポモドーロモード | `trc pomo "coding@project"` | 25分作業 + 5分休憩のサイクル |
+| F17 | 目標設定 | `trc goal set --daily 8h` | 日次/週次/月次の目標時間と達成率表示 |
+| F18 | インタラクティブUI | `trc ui` | TUI でリアルタイムダッシュボード表示 |
 
 ---
 
-## 4. コマンド体系
+## 3. コマンド体系
 
 ```
 trc <command> [options]
@@ -104,155 +80,9 @@ Global Options:
 
 ---
 
-## 5. データモデル
+## 4. 出力イメージ
 
-### 5.1 ER 図
-
-```mermaid
-erDiagram
-    projects {
-        integer id PK
-        text name UK
-        text color
-        text created_at
-    }
-
-    entries {
-        integer id PK
-        text description
-        integer project_id FK
-        text start_time
-        text end_time
-        integer duration_sec
-        text created_at
-        text updated_at
-    }
-
-    tags {
-        integer id PK
-        text name UK
-    }
-
-    entry_tags {
-        integer entry_id FK
-        integer tag_id FK
-    }
-
-    goals {
-        integer id PK
-        text period UK
-        integer target_sec
-        text created_at
-    }
-
-    projects ||--o{ entries : "has"
-    entries ||--o{ entry_tags : "has"
-    tags ||--o{ entry_tags : "has"
-```
-
-### 5.2 テーブル定義
-
-```sql
-CREATE TABLE projects (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL UNIQUE,
-    color TEXT DEFAULT '#3498db',
-    created_at TEXT DEFAULT (datetime('now'))
-);
-
-CREATE TABLE entries (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    description TEXT NOT NULL DEFAULT '',
-    project_id INTEGER REFERENCES projects(id),
-    start_time TEXT NOT NULL,
-    end_time TEXT,
-    duration_sec INTEGER,
-    created_at TEXT DEFAULT (datetime('now')),
-    updated_at TEXT DEFAULT (datetime('now'))
-);
-
-CREATE TABLE tags (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL UNIQUE
-);
-
-CREATE TABLE entry_tags (
-    entry_id INTEGER REFERENCES entries(id) ON DELETE CASCADE,
-    tag_id INTEGER REFERENCES tags(id) ON DELETE CASCADE,
-    PRIMARY KEY (entry_id, tag_id)
-);
-
-CREATE TABLE goals (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    period TEXT NOT NULL UNIQUE,
-    target_sec INTEGER NOT NULL,
-    created_at TEXT DEFAULT (datetime('now'))
-);
-```
-
----
-
-## 6. ディレクトリ構成
-
-```
-cli-tracker/
-├── package.json
-├── tsconfig.json
-├── tsup.config.ts          # ビルド設定
-├── vitest.config.ts         # テスト設定
-├── src/
-│   ├── index.ts             # エントリーポイント（CLI 定義）
-│   ├── commands/            # コマンドハンドラー
-│   │   ├── start.ts
-│   │   ├── stop.ts
-│   │   ├── status.ts
-│   │   ├── list.ts
-│   │   ├── report.ts
-│   │   ├── continue.ts
-│   │   ├── delete.ts
-│   │   ├── edit.ts
-│   │   ├── project.ts
-│   │   ├── export.ts
-│   │   ├── import.ts
-│   │   ├── add.ts
-│   │   ├── recalc.ts
-│   │   ├── goal.ts
-│   │   ├── pomodoro.ts
-│   │   └── ui.ts
-│   ├── db/                  # データベース層
-│   │   ├── connection.ts    # DB 接続・初期化
-│   │   └── repositories/    # リポジトリパターン
-│   │       ├── entry.ts
-│   │       ├── project.ts
-│   │       └── goal.ts
-│   ├── services/            # ビジネスロジック
-│   │   ├── timer.ts         # タイマー操作
-│   │   ├── report.ts        # レポート集計
-│   │   ├── export.ts        # エクスポート処理
-│   │   ├── import.ts        # インポート処理
-│   │   ├── goal.ts          # 目標管理
-│   │   ├── pomodoro.ts      # ポモドーロタイマー
-│   │   └── tui.ts           # TUIダッシュボード
-│   ├── ui/                  # 表示ロジック
-│   │   ├── formatter.ts     # 時間フォーマット
-│   │   ├── table.ts         # テーブル表示
-│   │   └── colors.ts        # 色定義
-│   └── utils/               # ユーティリティ
-│       ├── config.ts        # 設定管理（DBパス等）
-│       ├── time.ts          # 時間計算ヘルパー
-│       └── parse.ts         # description@project パーサー
-├── tests/
-│   ├── commands/
-│   ├── services/
-│   └── db/
-└── README.md
-```
-
----
-
-## 7. 出力イメージ
-
-### `trc status`
+### 4.1. `trc status`
 
 ```
 ⏱  Running: レビュー作業
@@ -261,7 +91,7 @@ cli-tracker/
    Elapsed: 1h 23m 45s
 ```
 
-### `trc list`
+### 4.2. `trc list`
 
 ```
 Today's Entries (2026-03-02)
@@ -276,7 +106,7 @@ Today's Entries (2026-03-02)
 └────┴──────────┴──────────┴───────────┴──────────┴──────────┘
 ```
 
-### `trc report --period week`
+### 4.3. `trc report --period week`
 
 ```
 Weekly Report (2026-02-23 ~ 2026-03-01)
@@ -297,7 +127,7 @@ By Day:
   Sun  ░░░░░░░░  0h 00m
 ```
 
-### `trc goal`
+### 4.4. `trc goal`
 
 ```
 Goal Progress
@@ -306,7 +136,7 @@ Goal Progress
   Weekly    ██████████████░░░░░░ 28h 30m / 40h 00m (71%)
 ```
 
-### `trc pomodoro "coding@my-project"`
+### 4.5. `trc pomodoro "coding@my-project"`
 
 ```
 Pomodoro: 4 rounds (25m work / 5m break)
@@ -315,7 +145,7 @@ Pomodoro: 4 rounds (25m work / 5m break)
    ██████████░░░░░░░░░░ 12:34 remaining
 ```
 
-### `trc ui`
+### 4.6. `trc ui`
 
 ```
 ╔══════════════════════════════════════════════╗
@@ -345,42 +175,8 @@ Pomodoro: 4 rounds (25m work / 5m break)
 
 ---
 
-## 8. 実装フェーズ
 
-### Phase 1: 基盤構築（コア機能）
-
-1. プロジェクト初期化（package.json, tsconfig, ビルド設定）
-2. DB 接続・テーブル作成
-3. `start` / `stop` / `status` コマンド実装
-4. 基本的な表示フォーマット
-5. 単体テスト作成
-
-### Phase 2: 一覧・レポート機能
-
-1. `list` コマンド（テーブル表示）
-2. `report` コマンド（日/週/月の集計）
-3. プロジェクト指定オプション（`-p`）
-4. テスト追加
-
-### Phase 3: 便利機能
-
-1. `continue` コマンド
-2. `delete` / `edit` コマンド
-3. タグ機能（`-t`）
-4. `project` サブコマンド
-5. `export` コマンド（CSV/YAML）
-
-### Phase 4: 品質向上
-
-1. エラーハンドリングの強化
-2. ヘルプメッセージの充実
-3. npm パッケージとしての公開設定（`bin` フィールド）
-4. E2E テスト
-5. README 作成
-
----
-
-## 9. 開発コマンド
+## 5. 開発コマンド
 
 ```bash
 # セットアップ
@@ -413,7 +209,7 @@ source ~/.bashrc
 
 ---
 
-## 10. タイムゾーン設定
+## 6. タイムゾーン設定
 
 日時の表示をタイムゾーン指定で変更できます。IANA タイムゾーン名（例: `Asia/Tokyo`, `America/New_York`）を使用します。
 
@@ -445,7 +241,7 @@ trc list    # Asia/Tokyo で表示
 
 ---
 
-## 11. インストール
+## 7. インストール
 
 ```bash
 npm install -g @infinith4/cli-tracker
@@ -453,7 +249,7 @@ npm install -g @infinith4/cli-tracker
 
 ---
 
-## 12. 非機能要件
+## 8. 非機能要件
 
 | 項目 | 要件 |
 |------|------|
