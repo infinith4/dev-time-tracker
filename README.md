@@ -2,7 +2,7 @@
 
 ## 1. プロジェクト概要
 
-Toggl のような時間計測・管理機能を CLI で実行できるアプリケーション。
+時間計測・管理機能を CLI で実行できるアプリケーション。
 タスクごとの作業時間を記録・集計し、プロジェクト単位でのレポートを生成する。
 
 ### コンセプト
@@ -81,6 +81,18 @@ Commands:
   project <subcommand>    プロジェクト管理
   export [--format csv|yaml]
                           データをエクスポートする
+  import <file> [--format csv|yaml]
+                          データをインポートする
+  add [description] --start <datetime> [--end <datetime>|--hm <duration>]
+                          完了済みエントリを追加する
+  recalc                  全エントリのdurationを再計算する
+  goal set [--daily|--weekly|--monthly <duration>]
+                          目標時間を設定する
+  goal                    目標の達成状況を表示する
+  goal clear              目標をクリアする
+  pomodoro [description] [--work <min>] [--break <min>] [--rounds <n>]
+                          ポモドーロタイマーを開始する
+  ui                      インタラクティブTUIダッシュボードを起動する
 
 Global Options:
   --timezone <tz>         表示のタイムゾーンを指定 (e.g. Asia/Tokyo)
@@ -126,6 +138,13 @@ erDiagram
         integer tag_id FK
     }
 
+    goals {
+        integer id PK
+        text period UK
+        integer target_sec
+        text created_at
+    }
+
     projects ||--o{ entries : "has"
     entries ||--o{ entry_tags : "has"
     tags ||--o{ entry_tags : "has"
@@ -162,6 +181,13 @@ CREATE TABLE entry_tags (
     tag_id INTEGER REFERENCES tags(id) ON DELETE CASCADE,
     PRIMARY KEY (entry_id, tag_id)
 );
+
+CREATE TABLE goals (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    period TEXT NOT NULL UNIQUE,
+    target_sec INTEGER NOT NULL,
+    created_at TEXT DEFAULT (datetime('now'))
+);
 ```
 
 ---
@@ -186,25 +212,35 @@ cli-tracker/
 │   │   ├── delete.ts
 │   │   ├── edit.ts
 │   │   ├── project.ts
-│   │   └── export.ts
+│   │   ├── export.ts
+│   │   ├── import.ts
+│   │   ├── add.ts
+│   │   ├── recalc.ts
+│   │   ├── goal.ts
+│   │   ├── pomodoro.ts
+│   │   └── ui.ts
 │   ├── db/                  # データベース層
 │   │   ├── connection.ts    # DB 接続・初期化
-│   │   ├── migrations.ts    # マイグレーション
 │   │   └── repositories/    # リポジトリパターン
 │   │       ├── entry.ts
 │   │       ├── project.ts
-│   │       └── tag.ts
+│   │       └── goal.ts
 │   ├── services/            # ビジネスロジック
 │   │   ├── timer.ts         # タイマー操作
 │   │   ├── report.ts        # レポート集計
-│   │   └── export.ts        # エクスポート処理
+│   │   ├── export.ts        # エクスポート処理
+│   │   ├── import.ts        # インポート処理
+│   │   ├── goal.ts          # 目標管理
+│   │   ├── pomodoro.ts      # ポモドーロタイマー
+│   │   └── tui.ts           # TUIダッシュボード
 │   ├── ui/                  # 表示ロジック
 │   │   ├── formatter.ts     # 時間フォーマット
 │   │   ├── table.ts         # テーブル表示
 │   │   └── colors.ts        # 色定義
 │   └── utils/               # ユーティリティ
 │       ├── config.ts        # 設定管理（DBパス等）
-│       └── time.ts          # 時間計算ヘルパー
+│       ├── time.ts          # 時間計算ヘルパー
+│       └── parse.ts         # description@project パーサー
 ├── tests/
 │   ├── commands/
 │   ├── services/
@@ -259,6 +295,52 @@ By Day:
   Fri  ███████░  7h 15m
   Sat  ░░░░░░░░  0h 00m
   Sun  ░░░░░░░░  0h 00m
+```
+
+### `trc goal`
+
+```
+Goal Progress
+
+  Daily     ████████░░░░░░░░░░░░  6h 12m / 8h 00m (77%)
+  Weekly    ██████████████░░░░░░ 28h 30m / 40h 00m (71%)
+```
+
+### `trc pomodoro "coding@my-project"`
+
+```
+Pomodoro: 4 rounds (25m work / 5m break)
+
+●  Pomodoro 1/4 — Working: coding@my-project
+   ██████████░░░░░░░░░░ 12:34 remaining
+```
+
+### `trc ui`
+
+```
+╔══════════════════════════════════════════════╗
+║  trc — Time Tracker           2026-03-03    ║
+╠══════════════════════════════════════════════╣
+║                                              ║
+║  ▶ Running: coding feature X                 ║
+║    Project: my-project                       ║
+║    Elapsed: 1h 23m 45s                       ║
+║                                              ║
+╠══════════════════════════════════════════════╣
+║  Today: 6h 12m                               ║
+║                                              ║
+║  my-project    ████████████░░░░ 4h 30m       ║
+║  client-work   ████░░░░░░░░░░░░ 1h 42m       ║
+║                                              ║
+╠══════════════════════════════════════════════╣
+║  Goal: ████████░░░░ 6h 12m / 8h (77%)       ║
+╠══════════════════════════════════════════════╣
+║  Recent Entries                              ║
+║  #12 standup meeting     09:00-09:15  15m    ║
+║  #13 coding feature X    09:30-       1h 23m ║
+╠══════════════════════════════════════════════╣
+║  [q] Quit  [s] Start/Stop  [r] Refresh       ║
+╚══════════════════════════════════════════════╝
 ```
 
 ---
@@ -324,6 +406,7 @@ npm run build                    # 先にビルド
 npm link                         # グローバルに `trc` コマンドを登録
 
 # PATH 設定（npm global bin が PATH に含まれていない場合）
+echo 'TRC_TIMEZONE=Asia/Tokyo"' >> ~/.bashrc
 echo 'export PATH="$PATH:$(npm prefix -g)/bin"' >> ~/.bashrc
 source ~/.bashrc
 ```

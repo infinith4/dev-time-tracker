@@ -11,6 +11,10 @@ import { registerProject } from "./commands/project.js";
 import { registerExport } from "./commands/export.js";
 import { registerImport } from "./commands/import.js";
 import { registerAdd } from "./commands/add.js";
+import { registerRecalc } from "./commands/recalc.js";
+import { registerGoal } from "./commands/goal.js";
+import { registerPomodoro } from "./commands/pomodoro.js";
+import { registerUi } from "./commands/ui.js";
 import { closeDb } from "./db/connection.js";
 import { setTimezone } from "./utils/time.js";
 
@@ -18,7 +22,7 @@ const program = new Command();
 
 program
   .name("trc")
-  .description("Toggl-like CLI time tracking tool")
+  .description("CLI time tracking tool")
   .version("1.0.0")
   .option("--timezone <tz>", "Timezone for display (e.g. Asia/Tokyo)")
   .hook("preAction", () => {
@@ -40,6 +44,10 @@ registerProject(program);
 registerExport(program);
 registerImport(program);
 registerAdd(program);
+registerRecalc(program);
+registerGoal(program);
+registerPomodoro(program);
+registerUi(program);
 
 program.hook("postAction", () => {
   closeDb();

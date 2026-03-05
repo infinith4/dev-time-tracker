@@ -47,6 +47,13 @@ function initTables(db: Database.Database): void {
       tag_id INTEGER REFERENCES tags(id) ON DELETE CASCADE,
       PRIMARY KEY (entry_id, tag_id)
     );
+
+    CREATE TABLE IF NOT EXISTS goals (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      period TEXT NOT NULL UNIQUE,
+      target_sec INTEGER NOT NULL,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
   `);
 }
 

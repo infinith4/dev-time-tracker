@@ -1,6 +1,6 @@
 # @infinith4/cli-tracker
 
-A Toggl-like CLI time tracking tool. Track your work hours, manage projects, and generate reports — all from the terminal.
+A CLI time tracking tool. Track your work hours, manage projects, and generate reports — all from the terminal.
 
 ## Installation
 
@@ -182,6 +182,55 @@ trc export > backup.csv
 trc import backup.csv
 ```
 
+### Pomodoro
+
+```bash
+# Default: 25min work + 5min break, 4 rounds
+trc pomodoro "coding@my-project"
+
+# Custom durations
+trc pomodoro "deep work@research" --work 50 --break 10 --rounds 2
+
+# With tags
+trc pomodoro "feature dev@backend" -t focus,sprint
+```
+
+Each work phase is recorded as a time entry. Break phases are displayed but not recorded. Press `Ctrl+C` to stop early (current entry is saved).
+
+### Goals
+
+```bash
+# Set goals
+trc goal set --daily 8h
+trc goal set --weekly 40h
+trc goal set --monthly 160h
+
+# View progress
+trc goal
+
+# Clear all goals
+trc goal clear
+```
+
+Duration format: `8h`, `7h30m`, `45m`.
+
+### Interactive TUI
+
+```bash
+trc ui
+```
+
+Opens a real-time dashboard showing:
+- Current running timer with elapsed time
+- Today's summary by project
+- Goal progress (if goals are set)
+- Recent entries
+
+**Keyboard shortcuts:**
+- `q` — Quit
+- `s` — Start/Stop timer (toggles between stop and continue)
+- `r` — Force refresh
+
 ## Examples
 
 ### Daily workflow
@@ -265,21 +314,21 @@ Use the `CLI_TRACKER_DB_PATH` environment variable to customize the database loc
 **For the current session:**
 
 ```bash
-export CLI_TRACKER_DB_PATH=/path/to/my/data.db
+export CLI_TRACKER_DB_PATH=/workspaces/dev-time-tracker/data.db
 trc list
 ```
 
 **For a single command:**
 
 ```bash
-CLI_TRACKER_DB_PATH=/path/to/my/data.db trc list
+CLI_TRACKER_DB_PATH=/workspaces/dev-time-tracker/data.db trc list
 ```
 
 **Permanently (add to shell profile):**
 
 ```bash
 # Add to ~/.bashrc or ~/.zshrc
-echo 'export CLI_TRACKER_DB_PATH=/path/to/my/data.db' >> ~/.bashrc
+echo 'export CLI_TRACKER_DB_PATH=/workspaces/dev-time-tracker/data.db' >> ~/.bashrc
 source ~/.bashrc
 ```
 

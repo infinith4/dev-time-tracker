@@ -63,10 +63,10 @@ export function registerEdit(program: Command): void {
           fields.end_time = endDayjs.toISOString();
         }
 
-        // Recalculate duration if start or end changed
+        // Always recalculate duration from start/end times
         const finalStart = fields.start_time || entry.start_time;
         const finalEnd = fields.end_time || entry.end_time;
-        if ((opts.start !== undefined || opts.end !== undefined) && finalEnd) {
+        if (finalEnd) {
           fields.duration_sec = diffSeconds(finalStart, finalEnd);
         }
 
