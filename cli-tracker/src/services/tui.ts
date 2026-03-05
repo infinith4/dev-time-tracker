@@ -16,7 +16,7 @@ const BOX = {
   h: "\u2550", v: "\u2551", ml: "\u2560", mr: "\u2563",
 };
 
-const WIDTH = 52;
+const WIDTH = 44;
 
 function hLine(left: string, right: string): string {
   return left + BOX.h.repeat(WIDTH) + right;
@@ -36,7 +36,7 @@ function stripAnsi(s: string): string {
   return s.replace(/\x1b\[[0-9;]*m/g, "");
 }
 
-function renderBar(ratio: number, width: number = 16): string {
+function renderBar(ratio: number, width: number = 12): string {
   const filled = Math.round(ratio * width);
   const empty = width - filled;
   return "\u2588".repeat(filled) + "\u2591".repeat(empty);
@@ -102,7 +102,7 @@ function buildScreen(): string {
     const ratio = dayTotal > 0 ? sec / dayTotal : 0;
     const bar = renderBar(ratio);
     const dur = formatDuration(sec);
-    const line = `${name.padEnd(14).slice(0, 14)} ${bar} ${dur}`;
+    const line = `${name.padEnd(12).slice(0, 12)} ${bar} ${dur}`;
     lines.push(padLine(line));
   }
   lines.push(emptyLine());
@@ -125,7 +125,7 @@ function buildScreen(): string {
   }
   for (const entry of recent) {
     const id = `#${entry.id}`;
-    const desc = (entry.description || "(no desc)").slice(0, 20).padEnd(20);
+    const desc = (entry.description || "(no desc)").slice(0, 14).padEnd(14);
     const start = formatTime(entry.start_time);
     const end = entry.end_time ? formatTime(entry.end_time) : "     ";
     const dur = entry.duration_sec
@@ -133,20 +133,20 @@ function buildScreen(): string {
       : entry.end_time
         ? ""
         : formatDuration(elapsedSeconds(entry.start_time));
-    const line = `${id.padEnd(5)} ${desc} ${start}-${end} ${dur}`;
+    const line = `${id.padEnd(4)} ${desc} ${start}-${end}`;
     lines.push(padLine(line));
   }
   lines.push(hLine(BOX.ml, BOX.mr));
 
   // Footer
-  const footer = "[q] Quit  [s] Start/Stop  [r] Refresh";
+  const footer = "[q]Quit [s]Start/Stop [r]Refresh";
   lines.push(padLine(footer));
   lines.push(hLine(BOX.bl, BOX.br));
 
   return lines.join("\n");
 }
 
-export function startTui(): void {
+export function startTui(intervalSec: number = 1): void {
   const hideCursor = "\x1b[?25l";
   const showCursor = "\x1b[?25h";
   const clearScreen = "\x1b[2J\x1b[H";
@@ -159,7 +159,7 @@ export function startTui(): void {
   };
 
   render();
-  const interval = setInterval(render, 1000);
+  const interval = setInterval(render, intervalSec * 1000);
 
   if (process.stdin.isTTY) {
     process.stdin.setRawMode(true);

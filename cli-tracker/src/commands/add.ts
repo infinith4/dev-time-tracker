@@ -29,6 +29,16 @@ export function registerAdd(program: Command): void {
     .option("--hm <duration>", "Duration from start (e.g., 1h30m, 2h, 45m)")
     .option("-p, --project <name>", "Project name")
     .option("-t, --tags <tags>", "Comma-separated tags")
+    .addHelpText(
+      "after",
+      `
+Either --end or --hm is required (cannot use both).
+
+Examples:
+  $ trc add "meeting" --start "2026-03-03 09:00" --end "2026-03-03 10:30"
+  $ trc add "review@backend" --start "2026-03-03 14:00" --hm 1h30m
+  $ trc add "standup@team" --start "09:00" --hm 15m -t daily`,
+    )
     .action(
       (
         description: string | undefined,

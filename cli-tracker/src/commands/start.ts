@@ -10,6 +10,17 @@ export function registerStart(program: Command): void {
     .description("Start a new timer (use description@project shorthand)")
     .option("-p, --project <name>", "Project name")
     .option("-t, --tags <tags>", "Comma-separated tags")
+    .addHelpText(
+      "after",
+      `
+Examples:
+  $ trc start "coding"                       Simple timer
+  $ trc start "coding@my-project"            With project (@ shorthand)
+  $ trc start "fix bug" -p backend -t urgent With project & tags
+  $ trc start                                Timer with no description
+
+If a timer is already running, it will be automatically stopped.`,
+    )
     .action((description: string | undefined, opts: { project?: string; tags?: string }) => {
       const parsed = parseDescriptionProject(description || "");
       const desc = parsed.description;

@@ -12,6 +12,17 @@ export function registerPomodoro(program: Command): void {
     .option("--work <minutes>", "Work duration in minutes", "25")
     .option("--break <minutes>", "Break duration in minutes", "5")
     .option("--rounds <count>", "Number of rounds", "4")
+    .addHelpText(
+      "after",
+      `
+Work phases are recorded as time entries. Breaks are not recorded.
+Press Ctrl+C to stop early (current entry is saved).
+
+Examples:
+  $ trc pomo "coding@my-project"
+  $ trc pomo "deep work" --work 50 --break 10 --rounds 2
+  $ trc pomo "sprint@backend" -t focus --rounds 3`,
+    )
     .action(
       async (
         description: string | undefined,

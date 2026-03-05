@@ -44,7 +44,11 @@
       "Bash(node dist/index.js add \"meeting\" --start \"2026-03-03 09:00\" --hm 1h30m -p test-project)",
       "Bash(node dist/index.js add \"quick task\" --start \"2026-03-03 14:00\" --hm 45m)",
       "Bash(node dist/index.js add \"long session\" --start \"2026-03-03 10:00\" --hm 2h)",
-      "Bash(node dist/index.js pomo --help)"
+      "Bash(node dist/index.js pomo --help)",
+      "Bash(node dist/index.js --help)",
+      "Bash(node dist/index.js start --help)",
+      "Bash(node dist/index.js add --help)",
+      "Bash(node dist/index.js ui --help)"
     ]
   }
 }

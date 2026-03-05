@@ -42,41 +42,89 @@
 
 ```
 trc <command> [options]
-
-Commands:
-  start [description]     タイマーを開始する
-  stop                    実行中のタイマーを停止する
-  status                  現在のタイマー状態を表示する
-  list [--date YYYY-MM-DD] [--project <name>]
-                          記録を一覧表示する
-  report [--period day|week|month] [--project <name>]
-                          集計レポートを表示する
-  continue                直前のタイマーを再開する
-  delete <id>             記録を削除する
-  edit <id> [options]     記録を編集する
-  project <subcommand>    プロジェクト管理
-  export [--format csv|yaml]
-                          データをエクスポートする
-  import <file> [--format csv|yaml]
-                          データをインポートする
-  add [description] --start <datetime> [--end <datetime>|--hm <duration>]
-                          完了済みエントリを追加する
-  recalc                  全エントリのdurationを再計算する
-  goal set [--daily|--weekly|--monthly <duration>]
-                          目標時間を設定する
-  goal                    目標の達成状況を表示する
-  goal clear              目標をクリアする
-  pomodoro [description] [--work <min>] [--break <min>] [--rounds <n>]
-                          ポモドーロタイマーを開始する
-  ui                      インタラクティブTUIダッシュボードを起動する
-
-Global Options:
-  --timezone <tz>         表示のタイムゾーンを指定 (e.g. Asia/Tokyo)
-  -p, --project <name>    プロジェクトを指定
-  -t, --tags <tags>       タグをカンマ区切りで指定
-  -h, --help              ヘルプを表示
-  -v, --version           バージョンを表示
 ```
+
+### Global Options
+
+| オプション | 説明 |
+|-----------|------|
+| `--timezone <tz>` | 表示のタイムゾーンを指定 (e.g. `Asia/Tokyo`) |
+| `-V, --version` | バージョンを表示 |
+| `-h, --help` | ヘルプを表示 |
+
+### Timer
+
+| コマンド | オプション | 説明 |
+|---------|-----------|------|
+| `trc start [description]` | `-p, --project <name>` プロジェクト指定 | タイマーを開始する |
+| | `-t, --tags <tags>` タグをカンマ区切り指定 | `description@project` 記法も使用可 |
+| `trc stop` | | 実行中のタイマーを停止する |
+| `trc status` | | 現在のタイマー状態と経過時間を表示する |
+| `trc continue` | | 直前のタイマーと同じ内容で再開する |
+
+### Entry Management
+
+| コマンド | オプション | 説明 |
+|---------|-----------|------|
+| `trc list` | `-d, --date <YYYY-MM-DD>` 日付指定 | 記録を一覧表示する（デフォルト: 今日） |
+| | `-p, --project <name>` プロジェクト絞り込み | |
+| `trc add [description]` | `--start <datetime>` 開始時刻 (必須) | 完了済みエントリを追加する |
+| | `--end <datetime>` 終了時刻 | `--end` か `--hm` のどちらかが必須 |
+| | `--hm <duration>` 所要時間 (e.g. `1h30m`) | `description@project` 記法も使用可 |
+| | `-p, --project <name>` / `-t, --tags <tags>` | |
+| `trc edit <id>` | `--desc <description>` 説明を変更 | 記録を修正する（duration自動再計算） |
+| | `--start <datetime>` / `--end <datetime>` | |
+| | `-p, --project <name>` | |
+| `trc delete <id>` | | 記録を削除する |
+| `trc recalc` | | 全エントリのdurationを一括再計算する |
+
+### Project
+
+| コマンド | 説明 |
+|---------|------|
+| `trc project list` | プロジェクト一覧を表示 |
+| `trc project add <name>` | プロジェクトを追加 |
+| `trc project rename <old> <new>` | プロジェクト名を変更 |
+| `trc project remove <name>` | プロジェクトを削除 |
+
+### Report
+
+| コマンド | オプション | 説明 |
+|---------|-----------|------|
+| `trc report` | `--period <day\|week\|month>` 集計期間（デフォルト: `week`） | 集計レポートを表示する |
+| | `-p, --project <name>` プロジェクト絞り込み | |
+
+### Export / Import
+
+| コマンド | オプション | 説明 |
+|---------|-----------|------|
+| `trc export` | `--format <csv\|yaml>` 出力形式（デフォルト: `csv`） | データをエクスポートする |
+| `trc import <file>` | `--format <csv\|yaml>` 形式指定（拡張子から自動判定） | データをインポートする |
+
+### Goal
+
+| コマンド | オプション | 説明 |
+|---------|-----------|------|
+| `trc goal` | | 目標の達成状況を表示する |
+| `trc goal set` | `--daily <duration>` 日次目標 (e.g. `8h`) | 目標時間を設定する |
+| | `--weekly <duration>` 週次目標 (e.g. `40h`) | |
+| | `--monthly <duration>` 月次目標 (e.g. `160h`) | |
+| `trc goal clear` | | 目標をクリアする |
+
+### Pomodoro
+
+| コマンド | オプション | 説明 |
+|---------|-----------|------|
+| `trc pomodoro [description]` | `--work <minutes>` 作業時間（デフォルト: `25`） | ポモドーロタイマーを開始する |
+| (alias: `trc pomo`) | `--break <minutes>` 休憩時間（デフォルト: `5`） | `description@project` 記法も使用可 |
+| | `--rounds <count>` ラウンド数（デフォルト: `4`） | |
+| | `-p, --project <name>` / `-t, --tags <tags>` | |
+
+### Interactive TUI
+
+| コマンド | 説明 |
+|---------|------|
+| `trc ui` | リアルタイムダッシュボードを起動（`q`: 終了, `s`: Start/Stop, `r`: 更新） |
 
 ---
 

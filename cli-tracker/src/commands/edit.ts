@@ -12,6 +12,18 @@ export function registerEdit(program: Command): void {
     .option("-p, --project <name>", "New project")
     .option("--start <datetime>", "New start time (YYYY-MM-DD HH:mm)")
     .option("--end <datetime>", "New end time (YYYY-MM-DD HH:mm)")
+    .addHelpText(
+      "after",
+      `
+Duration is automatically recalculated from start/end times.
+Run with no options to recalculate duration only.
+
+Examples:
+  $ trc edit 1 --desc "updated task"
+  $ trc edit 1 --start "2026-03-03 09:00" --end "2026-03-03 11:00"
+  $ trc edit 1 -p new-project
+  $ trc edit 1                            Recalculate duration only`,
+    )
     .action(
       (
         idStr: string,

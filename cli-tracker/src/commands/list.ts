@@ -14,6 +14,15 @@ export function registerList(program: Command): void {
     .description("List time entries")
     .option("-d, --date <YYYY-MM-DD>", "Date to show (default: today)")
     .option("-p, --project <name>", "Filter by project")
+    .addHelpText(
+      "after",
+      `
+Examples:
+  $ trc list                          Today's entries
+  $ trc list -d 2026-03-01            Entries for a specific date
+  $ trc list -p my-project            Filter by project
+  $ trc list -d 2026-03-01 -p backend Combine date and project`,
+    )
     .action((opts: { date?: string; project?: string }) => {
       const dateStr = opts.date || dayjs().format("YYYY-MM-DD");
       const start = startOfDay(dateStr);

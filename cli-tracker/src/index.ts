@@ -30,7 +30,26 @@ program
     if (tz) {
       setTimezone(tz);
     }
-  });
+  })
+  .addHelpText(
+    "after",
+    `
+Examples:
+  $ trc start "coding@my-project" -t feature    Start timer with project & tag
+  $ trc stop                                     Stop running timer
+  $ trc add "meeting@team" --start "09:00" --hm 1h30m
+                                                 Add a past entry with duration
+  $ trc list -d 2026-03-01 -p my-project         List entries by date & project
+  $ trc report --period month                    Monthly report
+  $ trc goal set --daily 8h --weekly 40h         Set time goals
+  $ trc goal                                     Show goal progress
+  $ trc pomo "deep work@research" --work 50      Pomodoro with custom duration
+  $ trc ui                                       Open interactive dashboard
+
+Tips:
+  Use "description@project" shorthand in start/add/pomo commands.
+  Run "trc <command> --help" for detailed options of each command.`,
+  );
 
 registerStart(program);
 registerStop(program);

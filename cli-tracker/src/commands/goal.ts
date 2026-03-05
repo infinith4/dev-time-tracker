@@ -11,6 +11,16 @@ export function registerGoal(program: Command): void {
     .option("--daily <duration>", "Daily goal (e.g., 8h, 7h30m)")
     .option("--weekly <duration>", "Weekly goal (e.g., 40h)")
     .option("--monthly <duration>", "Monthly goal (e.g., 160h)")
+    .addHelpText(
+      "after",
+      `
+Duration format: 8h, 7h30m, 45m. Multiple goals can be set at once.
+
+Examples:
+  $ trc goal set --daily 8h
+  $ trc goal set --weekly 40h --monthly 160h
+  $ trc goal set --daily 7h30m`,
+    )
     .action((opts: { daily?: string; weekly?: string; monthly?: string }) => {
       let count = 0;
 

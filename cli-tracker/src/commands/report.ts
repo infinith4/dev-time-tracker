@@ -10,6 +10,15 @@ export function registerReport(program: Command): void {
     .description("Show time report")
     .option("--period <period>", "Period: day, week, month", "week")
     .option("-p, --project <name>", "Filter by project")
+    .addHelpText(
+      "after",
+      `
+Examples:
+  $ trc report                         Weekly report (default)
+  $ trc report --period day            Today's report
+  $ trc report --period month          Monthly report
+  $ trc report -p my-project           Report for a specific project`,
+    )
     .action((opts: { period: string; project?: string }) => {
       const period = opts.period as Period;
       if (!["day", "week", "month"].includes(period)) {
