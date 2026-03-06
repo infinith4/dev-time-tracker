@@ -1,6 +1,6 @@
 {
   "name": "@infinith4/cli-tracker",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "CLI time tracking tool",
   "type": "module",
   "repository": {
