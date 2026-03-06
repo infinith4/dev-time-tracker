@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
 import { Command } from "commander";
 import { registerStart } from "./commands/start.js";
 import { registerStop } from "./commands/stop.js";
@@ -18,12 +21,16 @@ import { registerUi } from "./commands/ui.js";
 import { closeDb } from "./db/connection.js";
 import { setTimezone } from "./utils/time.js";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const pkg = JSON.parse(readFileSync(resolve(__dirname, "../package.json"), "utf-8"));
+
 const program = new Command();
 
 program
   .name("trc")
   .description("CLI time tracking tool")
-  .version("1.0.0")
+  .version(pkg.version)
   .option("--timezone <tz>", "Timezone for display (e.g. Asia/Tokyo)")
   .hook("preAction", () => {
     const tz = program.opts().timezone as string | undefined;

@@ -1,44 +1,44 @@
-# CLI タイマーアプリ 開発プラン
+# CLI Timer App Development Plan
 
-## 1. プロジェクト概要
+## 1. Project Overview
 
-時間計測・管理機能を CLI で実行できるアプリケーション。
-タスクごとの作業時間を記録・集計し、プロジェクト単位でのレポートを生成する。
+A CLI application for time tracking and management.
+Records and aggregates work time per task, and generates reports by project.
 
-### 1.1. コンセプト
+### 1.1. Concept
 
-- **シンプル**: `trc start "タスク名"` で即座に計測開始
-- **高速**: CLI ネイティブで起動が速い
-- **見やすい**: ターミナルに最適化された表示
-
----
-
-## 2. 機能一覧
-
-| # | 機能 | コマンド例 | 説明 |
-|---|------|-----------|------|
-| F1 | タイマー開始 | `trc start "レビュー作業"` | 新しいタイマーを開始 |
-| F2 | タイマー停止 | `trc stop` | 実行中のタイマーを停止 |
-| F3 | ステータス確認 | `trc status` | 現在のタイマー状態と経過時間を表示 |
-| F4 | タイマー一覧 | `trc list` | 今日の記録を一覧表示 |
-| F5 | レポート表示 | `trc report` | 日/週/月単位の集計レポート |
-| F6 | プロジェクト指定 | `trc start "タスク@myproject"` | プロジェクトに紐づけて記録（`@`記法対応） |
-| F7 | 直前の再開 | `trc continue` | 直前のタイマーと同じ内容で再開 |
-| F8 | エントリ削除 | `trc delete <id>` | 記録を削除 |
-| F9 | エントリ編集 | `trc edit <id> --desc "新しい説明"` | 記録を修正（duration自動再計算） |
-| F10 | タグ付け | `trc start -t bug,frontend "修正"` | タグで分類 |
-| F11 | プロジェクト管理 | `trc project list` | プロジェクトの CRUD |
-| F12 | エクスポート | `trc export --format csv` | CSV/YAML で出力 |
-| F13 | インポート | `trc import backup.csv` | CSV/YAML からデータ復元 |
-| F14 | エントリ追加 | `trc add "会議" --start "09:00" --hm 1h30m` | 過去のエントリを手動追加（`--hm`対応） |
-| F15 | Duration再計算 | `trc recalc` | 全エントリのdurationを一括再計算 |
-| F16 | ポモドーロモード | `trc pomo "coding@project"` | 25分作業 + 5分休憩のサイクル |
-| F17 | 目標設定 | `trc goal set --daily 8h` | 日次/週次/月次の目標時間と達成率表示 |
-| F18 | インタラクティブUI | `trc ui` | TUI でリアルタイムダッシュボード表示 |
+- **Simple**: Start tracking instantly with `trc start "task name"`
+- **Fast**: Native CLI with quick startup
+- **Clear**: Display optimized for the terminal
 
 ---
 
-## 3. コマンド体系
+## 2. Feature List
+
+| # | Feature | Command Example | Description |
+|---|---------|----------------|-------------|
+| F1 | Start Timer | `trc start "code review"` | Start a new timer |
+| F2 | Stop Timer | `trc stop` | Stop the running timer |
+| F3 | Check Status | `trc status` | Show current timer state and elapsed time |
+| F4 | List Entries | `trc list` | List today's entries |
+| F5 | Report | `trc report` | Aggregated report by day/week/month |
+| F6 | Project | `trc start "task@myproject"` | Record with project association (`@` notation) |
+| F7 | Continue | `trc continue` | Resume the last timer with the same settings |
+| F8 | Delete Entry | `trc delete <id>` | Delete an entry |
+| F9 | Edit Entry | `trc edit <id> --desc "new desc"` | Edit an entry (duration auto-recalculated) |
+| F10 | Tags | `trc start -t bug,frontend "fix"` | Classify with tags |
+| F11 | Project Mgmt | `trc project list` | Project CRUD operations |
+| F12 | Export | `trc export --format csv` | Export as CSV/YAML |
+| F13 | Import | `trc import backup.csv` | Restore data from CSV/YAML |
+| F14 | Add Entry | `trc add "meeting" --start "09:00" --hm 1h30m` | Manually add a past entry (`--hm` supported) |
+| F15 | Recalculate | `trc recalc` | Bulk recalculate duration for all entries |
+| F16 | Pomodoro | `trc pomo "coding@project"` | 25min work + 5min break cycle |
+| F17 | Goal Setting | `trc goal set --daily 8h` | Daily/weekly/monthly goals with progress |
+| F18 | Interactive TUI | `trc ui` | Real-time dashboard in TUI |
+
+---
+
+## 3. Command Reference
 
 ```
 trc <command> [options]
@@ -46,94 +46,95 @@ trc <command> [options]
 
 ### Global Options
 
-| オプション | 説明 |
-|-----------|------|
-| `--timezone <tz>` | 表示のタイムゾーンを指定 (e.g. `Asia/Tokyo`) |
-| `-V, --version` | バージョンを表示 |
-| `-h, --help` | ヘルプを表示 |
+| Option | Description |
+|--------|-------------|
+| `--timezone <tz>` | Set display timezone (e.g. `Asia/Tokyo`) |
+| `-V, --version` | Show version |
+| `-h, --help` | Show help |
 
 ### Timer
 
-| コマンド | オプション | 説明 |
-|---------|-----------|------|
-| `trc start [description]` | `-p, --project <name>` プロジェクト指定 | タイマーを開始する |
-| | `-t, --tags <tags>` タグをカンマ区切り指定 | `description@project` 記法も使用可 |
-| `trc stop` | | 実行中のタイマーを停止する |
-| `trc status` | | 現在のタイマー状態と経過時間を表示する |
-| `trc continue` | | 直前のタイマーと同じ内容で再開する |
+| Command | Options | Description |
+|---------|---------|-------------|
+| `trc start [description]` | `-p, --project <name>` Specify project | Start a timer |
+| | `-t, --tags <tags>` Comma-separated tags | `description@project` shorthand supported |
+| `trc stop` | | Stop the running timer |
+| `trc status` | | Show current timer state and elapsed time |
+| `trc continue` | | Resume the last timer with the same settings |
 
 ### Entry Management
 
-| コマンド | オプション | 説明 |
-|---------|-----------|------|
-| `trc list` | `-d, --date <YYYY-MM-DD>` 日付指定 | 記録を一覧表示する（デフォルト: 今日） |
-| | `-p, --project <name>` プロジェクト絞り込み | |
-| `trc add [description]` | `--start <datetime>` 開始時刻 (必須) | 完了済みエントリを追加する |
-| | `--end <datetime>` 終了時刻 | `--end` か `--hm` のどちらかが必須 |
-| | `--hm <duration>` 所要時間 (e.g. `1h30m`) | `description@project` 記法も使用可 |
+| Command | Options | Description |
+|---------|---------|-------------|
+| `trc list` | `-d, --date <YYYY-MM-DD>` Specify date | List entries (default: today) |
+| | `-p, --project <name>` Filter by project | |
+| `trc add [description]` | `--start <datetime>` Start time (required) | Add a completed entry |
+| | `--end <datetime>` End time | Either `--end` or `--hm` is required |
+| | `--hm <duration>` Duration (e.g. `1h30m`) | `description@project` shorthand supported |
 | | `-p, --project <name>` / `-t, --tags <tags>` | |
-| `trc edit <id>` | `--desc <description>` 説明を変更 | 記録を修正する（duration自動再計算） |
+| | `--no-split` Skip splitting overlapping entries | |
+| `trc edit <id>` | `--desc <description>` Change description | Edit an entry (duration auto-recalculated) |
 | | `--start <datetime>` / `--end <datetime>` | |
 | | `-p, --project <name>` | |
-| `trc delete <id>` | | 記録を削除する |
-| `trc recalc` | | 全エントリのdurationを一括再計算する |
+| `trc delete <id>` | | Delete an entry |
+| `trc recalc` | | Bulk recalculate duration for all entries |
 
 ### Project
 
-| コマンド | 説明 |
-|---------|------|
-| `trc project list` | プロジェクト一覧を表示 |
-| `trc project add <name>` | プロジェクトを追加 |
-| `trc project rename <old> <new>` | プロジェクト名を変更 |
-| `trc project remove <name>` | プロジェクトを削除 |
+| Command | Description |
+|---------|-------------|
+| `trc project list` | List all projects |
+| `trc project add <name>` | Add a project |
+| `trc project rename <old> <new>` | Rename a project |
+| `trc project remove <name>` | Remove a project |
 
 ### Report
 
-| コマンド | オプション | 説明 |
-|---------|-----------|------|
-| `trc report` | `--period <day\|week\|month>` 集計期間（デフォルト: `week`） | 集計レポートを表示する |
-| | `-p, --project <name>` プロジェクト絞り込み | |
+| Command | Options | Description |
+|---------|---------|-------------|
+| `trc report` | `--period <day\|week\|month>` Period (default: `week`) | Show aggregated report |
+| | `-p, --project <name>` Filter by project | |
 
 ### Export / Import
 
-| コマンド | オプション | 説明 |
-|---------|-----------|------|
-| `trc export` | `--format <csv\|yaml>` 出力形式（デフォルト: `csv`） | データをエクスポートする |
-| `trc import <file>` | `--format <csv\|yaml>` 形式指定（拡張子から自動判定） | データをインポートする |
+| Command | Options | Description |
+|---------|---------|-------------|
+| `trc export` | `--format <csv\|yaml>` Format (default: `csv`) | Export data |
+| `trc import <file>` | `--format <csv\|yaml>` Format (auto-detected from extension) | Import data |
 
 ### Goal
 
-| コマンド | オプション | 説明 |
-|---------|-----------|------|
-| `trc goal` | | 目標の達成状況を表示する |
-| `trc goal set` | `--daily <duration>` 日次目標 (e.g. `8h`) | 目標時間を設定する |
-| | `--weekly <duration>` 週次目標 (e.g. `40h`) | |
-| | `--monthly <duration>` 月次目標 (e.g. `160h`) | |
-| `trc goal clear` | | 目標をクリアする |
+| Command | Options | Description |
+|---------|---------|-------------|
+| `trc goal` | | Show goal progress |
+| `trc goal set` | `--daily <duration>` Daily goal (e.g. `8h`) | Set goal time |
+| | `--weekly <duration>` Weekly goal (e.g. `40h`) | |
+| | `--monthly <duration>` Monthly goal (e.g. `160h`) | |
+| `trc goal clear` | | Clear all goals |
 
 ### Pomodoro
 
-| コマンド | オプション | 説明 |
-|---------|-----------|------|
-| `trc pomodoro [description]` | `--work <minutes>` 作業時間（デフォルト: `25`） | ポモドーロタイマーを開始する |
-| (alias: `trc pomo`) | `--break <minutes>` 休憩時間（デフォルト: `5`） | `description@project` 記法も使用可 |
-| | `--rounds <count>` ラウンド数（デフォルト: `4`） | |
+| Command | Options | Description |
+|---------|---------|-------------|
+| `trc pomodoro [description]` | `--work <minutes>` Work duration (default: `25`) | Start a Pomodoro timer |
+| (alias: `trc pomo`) | `--break <minutes>` Break duration (default: `5`) | `description@project` shorthand supported |
+| | `--rounds <count>` Number of rounds (default: `4`) | |
 | | `-p, --project <name>` / `-t, --tags <tags>` | |
 
 ### Interactive TUI
 
-| コマンド | 説明 |
-|---------|------|
-| `trc ui` | リアルタイムダッシュボードを起動（`q`: 終了, `s`: Start/Stop, `r`: 更新） |
+| Command | Description |
+|---------|-------------|
+| `trc ui` | Launch real-time dashboard (`q`: Quit, `s`: Start/Stop, `r`: Refresh) |
 
 ---
 
-## 4. 出力イメージ
+## 4. Output Examples
 
 ### 4.1. `trc status`
 
 ```
-⏱  Running: レビュー作業
+⏱  Running: code review
    Project: myproject
    Started: 14:30:00
    Elapsed: 1h 23m 45s
@@ -146,9 +147,9 @@ Today's Entries (2026-03-02)
 ┌────┬──────────┬──────────┬───────────┬──────────┬──────────┐
 │ ID │ Project  │ Desc     │ Start     │ End      │ Duration │
 ├────┼──────────┼──────────┼───────────┼──────────┼──────────┤
-│  1 │ backend  │ API実装   │ 09:00     │ 11:30    │ 2h 30m   │
-│  2 │ frontend │ UI修正    │ 13:00     │ 14:15    │ 1h 15m   │
-│  3 │ backend  │ レビュー  │ 14:30     │ running  │ 1h 23m   │
+│  1 │ backend  │ API impl │ 09:00     │ 11:30    │ 2h 30m   │
+│  2 │ frontend │ UI fix   │ 13:00     │ 14:15    │ 1h 15m   │
+│  3 │ backend  │ review   │ 14:30     │ running  │ 1h 23m   │
 ├────┼──────────┼──────────┼───────────┼──────────┼──────────┤
 │    │          │          │           │ Total    │ 5h 08m   │
 └────┴──────────┴──────────┴───────────┴──────────┴──────────┘
@@ -223,73 +224,72 @@ Pomodoro: 4 rounds (25m work / 5m break)
 
 ---
 
-
-## 5. 開発コマンド
+## 5. Development Commands
 
 ```bash
-# セットアップ
+# Setup
 cd cli-tracker
 npm install
 
-# 開発
-npm run dev -- start "テスト"    # ts-node で直接実行
+# Development
+npm run dev -- start "test"      # Run directly with ts-node
 
-# ビルド
-npm run build                    # tsup でバンドル
+# Build
+npm run build                    # Bundle with tsup
 
-# テスト
-npm test                         # Vitest 実行
-npm run test:coverage            # カバレッジ付き
+# Test
+npm test                         # Run Vitest
+npm run test:coverage            # With coverage
 
-# リント
+# Lint
 npm run lint                     # ESLint
 npm run format                   # Prettier
 
-# ローカルインストール
-npm run build                    # 先にビルド
-npm link                         # グローバルに `trc` コマンドを登録
+# Local Install
+npm run build                    # Build first
+npm link                         # Register `trc` command globally
 
-# PATH 設定（npm global bin が PATH に含まれていない場合）
-echo 'TRC_TIMEZONE=Asia/Tokyo"' >> ~/.bashrc
+# PATH setup (if npm global bin is not in PATH)
+echo 'export TRC_TIMEZONE=Asia/Tokyo' >> ~/.bashrc
 echo 'export PATH="$PATH:$(npm prefix -g)/bin"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
 ---
 
-## 6. タイムゾーン設定
+## 6. Timezone Configuration
 
-日時の表示をタイムゾーン指定で変更できます。IANA タイムゾーン名（例: `Asia/Tokyo`, `America/New_York`）を使用します。
+You can change the display timezone using IANA timezone names (e.g. `Asia/Tokyo`, `America/New_York`).
 
-### 方法1: コマンドオプションで指定
+### Option 1: Command-line option
 
 ```bash
 trc --timezone Asia/Tokyo list
 trc --timezone America/New_York report --period week
 ```
 
-### 方法2: 環境変数で常時適用
+### Option 2: Environment variable (persistent)
 
 ```bash
-# .bashrc / .zshrc に追加
+# Add to .bashrc / .zshrc
 export TRC_TIMEZONE=Asia/Tokyo
 ```
 
-設定後は `--timezone` オプションなしでも JST で表示されます。
+Once set, all times are displayed in the specified timezone without the `--timezone` flag.
 
 ```bash
-trc list    # Asia/Tokyo で表示
+trc list    # Displayed in Asia/Tokyo
 ```
 
-### 優先順位
+### Priority
 
-1. `--timezone` オプション（最優先）
-2. `TRC_TIMEZONE` 環境変数
-3. システムのローカルタイム（デフォルト）
+1. `--timezone` option (highest priority)
+2. `TRC_TIMEZONE` environment variable
+3. System local time (default)
 
 ---
 
-## 7. インストール
+## 7. Installation
 
 ```bash
 npm install -g @infinith4/cli-tracker
@@ -297,13 +297,13 @@ npm install -g @infinith4/cli-tracker
 
 ---
 
-## 8. 非機能要件
+## 8. Non-Functional Requirements
 
-| 項目 | 要件 |
-|------|------|
-| 起動速度 | 200ms 以内にコマンド実行完了 |
-| データ容量 | 1年分の記録（約10万エントリ）でも快適動作 |
-| 対応 OS | macOS, Linux, Windows |
-| Node.js | v18 以上 |
-| データ保存先 | `~/.cli-tracker/data.db`（XDG_DATA_HOME 対応） |
-| オフライン | 完全ローカル動作、ネットワーク不要 |
+| Item | Requirement |
+|------|-------------|
+| Startup Speed | Command execution within 200ms |
+| Data Capacity | Smooth operation with 1 year of data (~100K entries) |
+| Supported OS | macOS, Linux, Windows |
+| Node.js | v18 or later |
+| Data Location | `~/.cli-tracker/data.db` (XDG_DATA_HOME supported) |
+| Offline | Fully local operation, no network required |

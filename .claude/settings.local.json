@@ -48,7 +48,8 @@
       "Bash(node dist/index.js --help)",
       "Bash(node dist/index.js start --help)",
       "Bash(node dist/index.js add --help)",
-      "Bash(node dist/index.js ui --help)"
+      "Bash(node dist/index.js ui --help)",
+      "Bash(node dist/index.js --version)"
     ]
   }
 }
