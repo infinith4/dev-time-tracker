@@ -102,6 +102,22 @@ export function updateEntry(
   return result.changes > 0;
 }
 
+export function getOverlappingEntries(newStart: string, newEnd: string): EntryRow[] {
+  const db = getDb();
+  return db
+    .prepare(
+      `SELECT e.*, p.name as project_name
+       FROM entries e
+       LEFT JOIN projects p ON e.project_id = p.id
+       WHERE
+         (e.end_time IS NOT NULL AND e.start_time < ? AND e.end_time > ?)
+         OR
+         (e.end_time IS NULL AND e.start_time < ?)
+       ORDER BY e.start_time ASC`,
+    )
+    .all(newEnd, newStart, newEnd) as EntryRow[];
+}
+
 export function getEntriesByDateRange(start: string, end: string): EntryRow[] {
   const db = getDb();
   return db

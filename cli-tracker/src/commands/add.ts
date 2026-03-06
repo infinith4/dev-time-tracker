@@ -2,8 +2,9 @@ import type { Command } from "commander";
 import { createEntry, stopEntry, setTagsForEntry } from "../db/repositories/entry.js";
 import { findOrCreateProject } from "../db/repositories/project.js";
 import { parseDateTime, diffSeconds, formatDuration } from "../utils/time.js";
-import { success, error as errorColor } from "../ui/colors.js";
+import { success, error as errorColor, dim } from "../ui/colors.js";
 import { parseDescriptionProject } from "../utils/parse.js";
+import { addEntryWithSplit } from "../services/entry-split.js";
 
 function parseHm(hm: string): number | null {
   const match = hm.match(/^(\d+)h(\d+)m$|^(\d+)h$|^(\d+)m$/);
@@ -29,6 +30,7 @@ export function registerAdd(program: Command): void {
     .option("--hm <duration>", "Duration from start (e.g., 1h30m, 2h, 45m)")
     .option("-p, --project <name>", "Project name")
     .option("-t, --tags <tags>", "Comma-separated tags")
+    .option("--no-split", "Add without splitting overlapping entries")
     .addHelpText(
       "after",
       `
@@ -42,7 +44,7 @@ Examples:
     .action(
       (
         description: string | undefined,
-        opts: { start: string; end?: string; hm?: string; project?: string; tags?: string },
+        opts: { start: string; end?: string; hm?: string; project?: string; tags?: string; split: boolean },
       ) => {
         const parsed = parseDescriptionProject(description || "");
         const projectName = opts.project || parsed.project;
@@ -96,16 +98,33 @@ Examples:
         }
 
         const desc = parsed.description;
-        const entryId = createEntry(desc, startIso, projectId);
-        stopEntry(entryId, endIso, duration);
-
         const tags = opts.tags ? opts.tags.split(",").map((t) => t.trim()) : undefined;
-        if (tags && tags.length > 0) {
-          setTagsForEntry(entryId, tags);
-        }
 
-        console.log(success(`\nAdded entry #${entryId}: ${desc || "(no description)"}`));
-        console.log(`  ${opts.start} ~ ${formatDuration(duration)}\n`);
+        if (opts.split) {
+          const result = addEntryWithSplit(desc, startIso, endIso, duration, projectId, tags);
+
+          console.log(success(`\nAdded entry #${result.newEntryId}: ${desc || "(no description)"}`));
+          console.log(`  ${opts.start} ~ ${formatDuration(duration)}`);
+
+          for (const m of result.modified) {
+            console.log(dim(`  Split #${m.id} ("${m.description}")`));
+          }
+          for (const c of result.created) {
+            console.log(dim(`  Created tail #${c.id} ("${c.description}")`));
+          }
+          for (const d of result.deleted) {
+            console.log(dim(`  Removed #${d.id} ("${d.description}")`));
+          }
+        } else {
+          const entryId = createEntry(desc, startIso, projectId);
+          stopEntry(entryId, endIso, duration);
+          if (tags && tags.length > 0) {
+            setTagsForEntry(entryId, tags);
+          }
+          console.log(success(`\nAdded entry #${entryId}: ${desc || "(no description)"}`));
+          console.log(`  ${opts.start} ~ ${formatDuration(duration)}`);
+        }
+        console.log();
       },
     );
 }

@@ -1,10 +1,9 @@
 import type { Command } from "commander";
-import dayjs from "dayjs";
 import {
   getEntriesByDateRange,
   getEntriesByDateRangeAndProject,
 } from "../db/repositories/entry.js";
-import { startOfDay, endOfDay } from "../utils/time.js";
+import { startOfDay, endOfDay, formatDate, now } from "../utils/time.js";
 import { renderEntryTable } from "../ui/table.js";
 import { dim } from "../ui/colors.js";
 
@@ -24,7 +23,7 @@ Examples:
   $ trc list -d 2026-03-01 -p backend Combine date and project`,
     )
     .action((opts: { date?: string; project?: string }) => {
-      const dateStr = opts.date || dayjs().format("YYYY-MM-DD");
+      const dateStr = opts.date || formatDate(now());
       const start = startOfDay(dateStr);
       const end = endOfDay(dateStr);
 
